@@ -23,3 +23,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# storage
+/uploads
+/uploads/**/*
+/uploads/*
+./uploads
+./uploads/**/*
+./uploads/*
