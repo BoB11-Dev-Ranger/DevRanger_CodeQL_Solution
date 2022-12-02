@@ -1,7 +1,18 @@
 import multer from "multer";
 import path from "path";
+import unzip_stream from "unzip-stream";
+import fs from "fs-extra";
+import child_process from "child_process";
 import { Request, Response } from "express";
 
+const unzip = async (paths: string, destination:string, filename: string)=>  {
+	let ext = path.extname(filename);
+	let new_filename = filename.split(ext)[0];
+	return fs.createReadStream(paths).pipe(unzip_stream.Extract({path: destination+new_filename}))
+}
+const delzip = async (paths:string) => {
+	child_process.execSync("rm "+paths);
+}
 const upload_obj = multer({
 	storage: multer.diskStorage({
 		destination: function(req, file, cb){
@@ -39,9 +50,17 @@ const upload = (req: Request, res: Response) => {
 		}
 		
 		if(req.file != undefined && path.extname(req.file.originalname)==".zip"){
+			unzip(req.file.path, req.file.destination,req.file.filename)
+			.then((res: any)=>{
+				delzip(res.opts?.path+".zip");
+			})
+			console.log("success");
 			res.send({
 				status: "success",
-				msg: "repository is uploaded"
+				msg: {
+                    path: req.file.path,
+                    filename: req.file.filename
+                }
 			})
 		}
 		else{
