@@ -1,0 +1,25 @@
+{
+  "name": "devranger-codeql-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "lerna": "^6.1.0",
+    "lodash": "^4.17.21",
+    "morgan": "^1.10.0",
+    "typescript": "^4.9.3"
+  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+	  "client": "yarn workspace @services/client",
+          "shared": "yarn workspace @services/shared",
+	  "server": "yarn workspace @services/server"
+  }
+}
