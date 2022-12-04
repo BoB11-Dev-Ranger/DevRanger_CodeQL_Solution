@@ -16,7 +16,7 @@ const delzip = async (paths:string) => {
 const upload_obj = multer({
 	storage: multer.diskStorage({
 		destination: function(req, file, cb){
-			cb(null, "/home/ubuntu/devranger-codeql-service/uploads/");
+			cb(null, "/home/ubuntu/CodeQL-Service/uploads/");
 		},
 		filename: function(req, file, cb){
 			cb(null, new Date().valueOf() + path.extname(file.originalname));
@@ -59,7 +59,7 @@ const upload = (req: Request, res: Response) => {
 				status: "success",
 				msg: {
                     path: req.file.path,
-                    filename: req.file.filename
+                    dirname: req.file.filename.split(path.extname(req.file.filename))[0]
                 }
 			})
 		}

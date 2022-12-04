@@ -30,3 +30,9 @@ yarn-error.log*
 ./uploads
 ./uploads/**/*
 ./uploads/*
+/codeql-db
+/codeql-db/**/*
+/codeql-db/*
+./codeql-db
+./codeql-db/**/*
+./codeql-db/*
