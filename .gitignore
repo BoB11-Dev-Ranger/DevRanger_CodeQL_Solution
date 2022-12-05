@@ -36,4 +36,6 @@ yarn-error.log*
 ./codeql-db
 ./codeql-db/**/*
 ./codeql-db/*
-./codeql-db/
+/csvs
+/csvs/**/*
+/csvs/*

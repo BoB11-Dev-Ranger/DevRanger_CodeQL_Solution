@@ -1,6 +1,6 @@
 import express, {Request, Response} from "express";
 import upload from "./controller/upload";
-import codeql from "./controller/codeqling";
+import codeql_create from "./controller/codeql_create";
 import { get_status } from "./controller/status";
 import bodyParser from "body-parser";
 
@@ -16,7 +16,7 @@ router.get('/',(req:Request, res:Response)=>{
     })
 })
 router.post('/upload',upload);
-router.post('/codeql',codeql);
+router.post('/codeql-create',codeql_create);
 router.get('/status',get_status);
 
 export default router;

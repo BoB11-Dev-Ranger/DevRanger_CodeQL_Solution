@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2021",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "lib": ["ES2021", "ES2021.String"],
+    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "esModuleInterop":true,
     "jsx": "react",                                /* Specify what JSX code is generated. */
     "module": "commonjs",                                /* Specify what module code is generated. */

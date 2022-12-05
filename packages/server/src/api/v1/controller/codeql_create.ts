@@ -20,11 +20,11 @@ async function createDB(dirname: string) {
   }
 }
 
-const codeql = (req: Request, res: Response) => {
+const codeql_create = (req: Request, res: Response) => {
     let dirname = req.body.dirname; // dirname
     createDB(dirname)
     .then((r)=>{
-        set_status(1);
+        set_status('create_db', 1);
         res.send({
             status: true,
             pid: r.pid?.toString(),
@@ -35,9 +35,9 @@ const codeql = (req: Request, res: Response) => {
         console.log(e);
         res.status(400).send({
             status: false,
-            msg: "DB creating false"
+            msg: "DB creating Fail"
         })
     })
 }
 
-export default codeql;
+export default codeql_create;
