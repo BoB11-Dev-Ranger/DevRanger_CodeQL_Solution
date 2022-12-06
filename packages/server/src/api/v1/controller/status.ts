@@ -92,7 +92,7 @@ export const get_status = (req:Request, res:Response) => {
         let process_res = execSync('ps -ef | grep analyze');
         let process_cnt = process_res.toString().length - process_res.toString().replaceAll('\n','').length;
         if( process_cnt <= 2){
-            db_con.query('update analysis_status set status=0 where token=\''+req.headers.cookie+'\'',
+            db_con.query('update analysis_status set status=0 where token=\''+headers['token']+'\'',
                 (err, result)=>{
                     if(err){
                         res.status(400).send({
