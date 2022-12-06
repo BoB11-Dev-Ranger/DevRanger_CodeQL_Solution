@@ -3,6 +3,8 @@ import Button from 'react-bootstrap/Button';
 import {useState} from "react";
 import axios from "axios";
 
+const API_URL = "http://ec2-15-164-234-122.ap-northeast-2.compute.amazonaws.com:8000/v1";
+
 const Uploader = ()=>{
     const [repo, setRepo] = useState(0);
     const handleZipFile = (e) => {
@@ -10,10 +12,23 @@ const Uploader = ()=>{
         setRepo(e.target.files[0]);
     }
     const uploadRepo = () => {
-        if(repo==0)
+        if(repo === 0)
             alert('파일을 업로드 해주세요');
-        else
-            alert('굿');
+        else{
+            const fomrData = new FormData();
+            fomrData.append(
+                "repo",
+                repo
+            );
+            
+            axios.post(API_URL+"/upload",fomrData)
+            .then((res)=>{
+                console.log(res);
+            })
+            .catch((e)=>{
+                alert(e);
+            })
+        }
     }
     return (
         <>
