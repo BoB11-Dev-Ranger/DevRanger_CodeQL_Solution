@@ -1,4 +1,3 @@
 #!/bin/bash
 yarn install
-mkdir codeql-db
-mkdir uploads
+mkdir uploads csvs codeql-db

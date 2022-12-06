@@ -108,6 +108,7 @@ const codeql_analyze = async (req: Request, res: Response) => {
                         msg: "DB "+ql[6]+" analysis Fail"
                     })
                 });
+                set_status('analysis_db', 1, req.headers.cookie);
                 res.send({
                     status: "success",
                     msg: "codeql-db analysis is started"
