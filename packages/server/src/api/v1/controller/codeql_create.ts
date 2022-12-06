@@ -24,14 +24,16 @@ async function createDB(dirname: string) {
 }
 
 const codeql_create = (req: Request, res: Response) => {
-    if(typeof req.headers.cookie == 'undefined'){
+    let headers = req.headers;
+    console.log(headers['token']);
+    if(typeof headers['token'] == 'undefined'){
       res.status(401).send({
         status:"fail",
-        msg: "cookie is needed"
+        msg: "token is needed"
       })
       return;
     }
-    db_con.query('select * from create_status where token=\''+req.headers.cookie+'\'',
+    db_con.query('select * from create_status where token=\''+headers['token']+'\'',
         (err:QueryError, rows:RowDataPacket) => {
             if(rows[0] != undefined && rows[0].status == 1){
               res.status(401).send({
@@ -43,7 +45,7 @@ const codeql_create = (req: Request, res: Response) => {
               let dirname = req.body.dirname; // dirname
               createDB(dirname)
               .then((result)=>{
-                  set_status('create_db', 1, req.headers.cookie);
+                  set_status('create_db', 1, headers['token']);
                   res.send({
                       status: true,
                       pid: result.pid?.toString(),

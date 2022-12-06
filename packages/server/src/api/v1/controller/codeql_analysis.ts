@@ -35,14 +35,16 @@ async function analyzeDB(dirname: string, ql_num: number) {
     }
 }
 const codeql_analyze = async (req: Request, res: Response) => {
-    if(typeof req.headers.cookie == 'undefined'){
+    let headers = req.headers;
+    console.log(headers['token']);
+    if(typeof headers['token'] == 'undefined'){
       res.status(401).send({
         status:"fail",
-        msg: "cookie is needed"
+        msg: "token is needed"
       })
       return;
     }
-    db_con.query('select * from analysis_status where token=\''+req.headers.cookie+'\'',
+    db_con.query('select * from analysis_status where token=\''+headers['token']+'\'',
         async (err:QueryError, rows:RowDataPacket) => {
             if(rows[0] != undefined && rows[0].status != 0){
               res.status(401).send({
@@ -108,7 +110,7 @@ const codeql_analyze = async (req: Request, res: Response) => {
                         msg: "DB "+ql[6]+" analysis Fail"
                     })
                 });
-                set_status('analysis_db', 1, req.headers.cookie);
+                set_status('analysis_db', 1, headers['token']);
                 res.send({
                     status: "success",
                     msg: "codeql-db analysis is started"

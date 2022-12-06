@@ -3,10 +3,11 @@ import Button from 'react-bootstrap/Button';
 import {useState} from "react";
 import axios from "axios";
 
-const API_URL = "http://ec2-15-164-234-122.ap-northeast-2.compute.amazonaws.com:8000/v1";
+const API_URL = "http://ec2-3-39-230-136.ap-northeast-2.compute.amazonaws.com:8000/v1";
 
 const Uploader = ()=>{
     const [repo, setRepo] = useState(0);
+
     const handleZipFile = (e) => {
         console.log(e.target.files[0]);
         setRepo(e.target.files[0]);
@@ -20,13 +21,27 @@ const Uploader = ()=>{
                 "repo",
                 repo
             );
-            
             axios.post(API_URL+"/upload",fomrData)
-            .then((res)=>{
-                console.log(res);
+            .then((upload_res)=>{
+                axios.post(API_URL+"/codeql-create",
+                    {
+                        "dirname": upload_res.data.msg.dirname
+                    },
+                    {
+                        headers:{
+                            "token": "test",
+                            'Content-type': 'application/json',
+                            'Accept': '*/*'
+                        }
+                    }
+                ).then((create_res)=>{
+                    console.log(create_res);
+                }).catch((create_err)=>{
+                    alert(create_err);
+                })
             })
-            .catch((e)=>{
-                alert(e);
+            .catch((upload_err)=>{
+                alert(upload_err);
             })
         }
     }
@@ -41,7 +56,7 @@ const Uploader = ()=>{
                 </div>
                 <div>
                     <Button variant="primary" type="submit" onClick={uploadRepo}>
-                        업로드
+                        코드 점검 스타트
                     </Button>
                 </div>
             </Form.Group>

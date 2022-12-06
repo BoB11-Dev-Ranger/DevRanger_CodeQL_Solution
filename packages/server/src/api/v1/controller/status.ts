@@ -6,7 +6,7 @@ import { QueryError, RowDataPacket } from "mysql2";
 const execSync = child_process.execSync;
 const db_con = connecting();
 
-export const set_status = (mod: string, num:number, token: string|undefined) => {
+export const set_status = (mod: string, num:number, token: string[]|string|undefined) => {
     if(mod == 'create_db'){
         db_con.query('select * from create_status where token=\''+token+'\'',(err:QueryError, res:RowDataPacket)=>{
             if(res[0] == undefined){
@@ -48,12 +48,13 @@ export const set_status = (mod: string, num:number, token: string|undefined) => 
 }
 
 export const get_status = (req:Request, res:Response) => {
+    let headers = req.headers;
     /* create db process 의 생존 여부 */
     if(req.query.mod == "create_db"){
         if(typeof Number(req.query.pid) == 'number'){
             let process_res = execSync('ps -ef | grep ' + req.query.pid);
             if(process_res.toString().length - process_res.toString().replaceAll('\n','').length <= 2){
-                db_con.query('update create_status set status=0 where token=\''+req.headers.cookie+'\'',
+                db_con.query('update create_status set status=0 where token=\''+headers['token']+'\'',
                     (err, result)=>{
                         if(err){
                             res.status(400).send({
