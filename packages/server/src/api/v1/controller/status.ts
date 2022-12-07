@@ -29,14 +29,15 @@ export const set_status = (mod: string, num:number, token: string[]|string|undef
     else if(mod == 'analysis_db'){
         db_con.query('select * from analysis_status where token=\''+token+'\'',(err:QueryError, res:RowDataPacket)=>{
             if(res[0] == undefined){
-                db_con.query('insert into analysis_status(token,status) values (\''+token+'\',7)',
+                db_con.query('insert into analysis_status(token,status) values (\''+token+'\',1)',
                     (err2, res2)=>{
                         if(err)
                             throw err;
                     }
                 )
             } else {
-                db_con.query('update analysis_status set status=7 where token=\''+token+'\'',
+                console.log(res[0]);
+                db_con.query('update analysis_status set status='+((res[0].status)+1)+' where token=\''+token+'\'',
                     (err2:QueryError, res2:RowDataPacket)=>{
                         if(err)
                             throw err;
@@ -92,82 +93,49 @@ export const get_status = (req:Request, res:Response) => {
         let process_res = execSync('ps -ef | grep analyze');
         let process_cnt = process_res.toString().length - process_res.toString().replaceAll('\n','').length;
         if( process_cnt <= 2){
-            db_con.query('update analysis_status set status=0 where token=\''+headers['token']+'\'',
-                (err, result)=>{
-                    if(err){
+            db_con.query('select * from analysis_status where token=\''+headers['token']+'\'',
+                (err1:QueryError, result1: RowDataPacket) => {
+                    if(err1){
                         res.status(400).send({
                             status: "fail",
                             msg: "db query error"
                         })
-                        throw err;
                     }
-                    /* codeql-db 분석 성공 */
-                    res.send({
-                        status: 'success',
-                        msg: 'analysis codeql-db success'
-                    })
+                    if(result1[0].status === 7){
+                        db_con.query('update analysis_status set status=0 where token=\''+headers['token']+'\'',
+                            (err, result)=>{
+                                if(err){
+                                    res.status(400).send({
+                                        status: "fail",
+                                        msg: "db query error"
+                                    })
+                                    throw err;
+                                }
+                                /* codeql-db 분석 성공 */
+                                res.send({
+                                    status: 'success',
+                                    msg: 'analysis codeql-db success'
+                                })
+                            }
+                        )
+                    }
+                    else{
+                        res.send({
+                            status: 'next',
+                            msg: 'analysis codeql-db success'
+                        })
+                    }
                 }
             )
+            
         }
         else{
             /* 생성 진행중 */
-            switch(process_cnt){
-                case 16:
-                case 15:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 0
-                    });
-                    break;
-                case 14:
-                case 13:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 14
-                    });
-                    break;
-                case 12:
-                case 11:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 28
-                    });
-                    break;
-                case 10:
-                case 9:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 42
-                    });
-                    break;
-                case 8:
-                case 7:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 56
-                    });
-                    break;
-                case 6:
-                case 5:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 70
-                    });
-                    break;
-                case 4:
-                case 3:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 84
-                    });
-                    break;
-                default:
-                    res.send({
-                        status: 'analyzing',
-                        msg: 0
-                    });
-                    break;
-            }
+            res.send({
+                status: 'analyzing',
+                msg: 0
+            });
+            
         }
     }
 }

@@ -11,12 +11,14 @@ const API_URL = "http://ec2-13-125-245-164.ap-northeast-2.compute.amazonaws.com:
 const Uploader = ()=>{
     const [repo, setRepo] = useState(0);
     const [loading, setLoading] = useState(false);
+    let ql_num = 0;
     let dirname = "";
 
     const handleZipFile = (e) => {
         console.log(e.target.files[0]);
         setRepo(e.target.files[0]);
     }
+    
     /* db creating 진행 정도 체크 */
     const get_create_status = (pid) => {
         axios.get(API_URL+"/status?mod=create_db&pid="+pid,
@@ -51,14 +53,23 @@ const Uploader = ()=>{
                 }
             }
         ).then((res)=>{
+            /* 분석 중 */
             if(res.data.status==="analyzing"){
-                console.log("percentage: "+res.data.msg+"%");
                 setTimeout(get_analyze_status,1000);
             }
             else{
-                console.log(res);
-                setLoading(false);
-                alert("CodeQL DB 분석완료");
+                /* 다음 쿼리 */
+                if(res.data.status === "next"){
+                    ql_num += 1;
+                    analyzeDB();
+                }
+                /* 총 분석 완료 */
+                else{
+                    ql_num = 0;
+                    console.log(res);
+                    setLoading(false);
+                    alert("CodeQL DB 분석완료");
+                }
             }
         })
     }
@@ -66,7 +77,8 @@ const Uploader = ()=>{
     const analyzeDB = () => {
         axios.post(API_URL+"/codeql-analyze",
             {
-                "dirname": dirname
+                "dirname": dirname,
+                "ql_num": ql_num
             },
             {
                 headers:{

@@ -46,68 +46,20 @@ const codeql_analyze = async (req: Request, res: Response) => {
     }
     db_con.query('select * from analysis_status where token=\''+headers['token']+'\'',
         async (err:QueryError, rows:RowDataPacket) => {
-            if(rows[0] != undefined && rows[0].status != 0){
-              res.status(401).send({
-                status: "fail",
-                msg: "You are already analyzing codeql-db now. wait for a sec"
-              })
+            let dirname = req.body.dirname; // dirname
+            if(typeof req.body.ql_num != 'number'){
+                res.status(400).send({
+                    status: "fail",
+                    msg: "Invalid Query Num"
+                })
             }
-            else {
-                let dirname = req.body.dirname; // dirname
-                await analyzeDB(dirname, 0)
+            else{
+                await analyzeDB(dirname, req.body.ql_num)
                 .catch((e)=>{
                     console.log(e);
                     res.status(400).send({
                         status: false,
                         msg: "DB "+ql[0]+" analysis Fail"
-                    })
-                });
-                await analyzeDB(dirname, 1)
-                .catch((e)=>{
-                    console.log(e);
-                    res.status(400).send({
-                        status: false,
-                        msg: "DB "+ql[1]+" analysis Fail"
-                    })
-                });
-                await analyzeDB(dirname, 2)
-                .catch((e)=>{
-                    console.log(e);
-                    res.status(400).send({
-                        status: false,
-                        msg: "DB "+ql[2]+" analysis Fail"
-                    })
-                });
-                await analyzeDB(dirname, 3)
-                .catch((e)=>{
-                    console.log(e);
-                    res.status(400).send({
-                        status: false,
-                        msg: "DB "+ql[3]+" analysis Fail"
-                    })
-                });
-                await analyzeDB(dirname, 4)
-                .catch((e)=>{
-                    console.log(e);
-                    res.status(400).send({
-                        status: false,
-                        msg: "DB "+ql[4]+" analysis Fail"
-                    })
-                });
-                await analyzeDB(dirname, 5)
-                .catch((e)=>{
-                    console.log(e);
-                    res.status(400).send({
-                        status: false,
-                        msg: "DB "+ql[5]+" analysis Fail"
-                    })
-                });
-                await analyzeDB(dirname, 6)
-                .catch((e)=>{
-                    console.log(e);
-                    res.status(400).send({
-                        status: false,
-                        msg: "DB "+ql[6]+" analysis Fail"
                     })
                 });
                 set_status('analysis_db', 1, headers['token']);
@@ -116,7 +68,55 @@ const codeql_analyze = async (req: Request, res: Response) => {
                     msg: "codeql-db analysis is started"
                 })
             }
-        }
+            // await analyzeDB(dirname, 1)
+            // .catch((e)=>{
+            //     console.log(e);
+            //     res.status(400).send({
+            //         status: false,
+            //         msg: "DB "+ql[1]+" analysis Fail"
+            //     })
+            // });
+            // await analyzeDB(dirname, 2)
+            // .catch((e)=>{
+            //     console.log(e);
+            //     res.status(400).send({
+            //         status: false,
+            //         msg: "DB "+ql[2]+" analysis Fail"
+            //     })
+            // });
+            // await analyzeDB(dirname, 3)
+            // .catch((e)=>{
+            //     console.log(e);
+            //     res.status(400).send({
+            //         status: false,
+            //         msg: "DB "+ql[3]+" analysis Fail"
+            //     })
+            // });
+            // await analyzeDB(dirname, 4)
+            // .catch((e)=>{
+            //     console.log(e);
+            //     res.status(400).send({
+            //         status: false,
+            //         msg: "DB "+ql[4]+" analysis Fail"
+            //     })
+            // });
+            // await analyzeDB(dirname, 5)
+            // .catch((e)=>{
+            //     console.log(e);
+            //     res.status(400).send({
+            //         status: false,
+            //         msg: "DB "+ql[5]+" analysis Fail"
+            //     })
+            // });
+            // await analyzeDB(dirname, 6)
+            // .catch((e)=>{
+            //     console.log(e);
+            //     res.status(400).send({
+            //         status: false,
+            //         msg: "DB "+ql[6]+" analysis Fail"
+            //     })
+            // });
+            }
     )
     
 }
