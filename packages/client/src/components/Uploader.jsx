@@ -5,15 +5,24 @@ import axios from "axios";
 import Spinner from "./Spinner";
 
 const API_URL = "http://ec2-13-125-245-164.ap-northeast-2.compute.amazonaws.com:8000/v1";
-
-
-
+const PROCESS_STR = [
+    "",
+    "레포지토리 업로드중...",
+    "CodeQL DB 생성중...",
+    "CodeQL DB 분석중"
+];
+const sleep = (ms) => {
+     return new Promise(resolve=>{
+         setTimeout(resolve,ms)
+     })
+ }
 const Uploader = ()=>{
     const [repo, setRepo] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [process_str, setProcessStr] = useState(0);
+    const [percentage, setPercentage] = useState(0);
     let ql_num = 0;
     let dirname = "";
-
     const handleZipFile = (e) => {
         console.log(e.target.files[0]);
         setRepo(e.target.files[0]);
@@ -34,9 +43,8 @@ const Uploader = ()=>{
                 setTimeout(get_create_status,1000,pid);
             }
             else{
-                console.log(res);
-                alert('CodeQL DB 생성완료');
-                analyzeDB();
+                setProcessStr(3);
+                analyzeDB(0);
             }
         })
         .catch((e)=>{
@@ -44,7 +52,7 @@ const Uploader = ()=>{
         })
     }
     /* db analyzing 진행 정도 체크 */
-    const get_analyze_status = () => {
+    const get_analyze_status = (per) => {
         axios.get(API_URL+"/status?mod=analysis_db",
             {
                 headers:{
@@ -52,29 +60,36 @@ const Uploader = ()=>{
                     'Accept': '*/*'
                 }
             }
-        ).then((res)=>{
+        ).then(async (res)=>{
             /* 분석 중 */
             if(res.data.status==="analyzing"){
-                setTimeout(get_analyze_status,1000);
+                setTimeout(get_analyze_status,1000, per);
             }
             else{
                 /* 다음 쿼리 */
                 if(res.data.status === "next"){
+                    setPercentage(per+14);
                     ql_num += 1;
-                    analyzeDB();
+                    analyzeDB(per+14);
                 }
                 /* 총 분석 완료 */
                 else{
+                    setPercentage(per+14);
+                    await sleep(2000);
+                    setPercentage(100);
+                    console.log("CodeQL DB 분석완료");
+                    await sleep(2000);
+                    /* 초기화 */
                     ql_num = 0;
-                    console.log(res);
-                    setLoading(false);
-                    alert("CodeQL DB 분석완료");
+                    setPercentage(0);
+                    setProcessStr(0);
+                    setLoading( false);
                 }
             }
         })
     }
     /* db analyzing */
-    const analyzeDB = () => {
+    const analyzeDB = (per) => {
         axios.post(API_URL+"/codeql-analyze",
             {
                 "dirname": dirname,
@@ -88,8 +103,7 @@ const Uploader = ()=>{
                 }
             }
         ).then((analyze_res)=>{
-            console.log(analyze_res);
-            setTimeout(get_analyze_status,1000);
+            setTimeout(get_analyze_status,1000, per);
         })
     }
     /* repo upload 및 db creating */
@@ -103,10 +117,12 @@ const Uploader = ()=>{
                 repo
             );
             /* repository 업로드 */
+            setProcessStr(1);
             setLoading(true);
             axios.post(API_URL+"/upload",fomrData)
             .then((upload_res)=>{
                 /* codeql-db 생성 */
+                setProcessStr(2);
                 dirname= upload_res.data.msg.dirname;
                 axios.post(API_URL+"/codeql-create",
                     {
@@ -119,8 +135,7 @@ const Uploader = ()=>{
                             'Accept': '*/*'
                         }
                     }
-                ).then((create_res)=>{
-                    console.log(create_res);                   
+                ).then((create_res)=>{                
                     setTimeout(get_create_status,1000,create_res.data.pid);
                 }).catch((create_err)=>{
                     alert(create_err);
@@ -135,6 +150,11 @@ const Uploader = ()=>{
     return (
         <>
             {loading?(<Spinner></Spinner>):(<></>)}
+            {process_str===3
+            ?   (<div className='loading'>{`${PROCESS_STR[process_str]}(${percentage}%)...`}</div>)
+            :
+                (<div className='loading'>{PROCESS_STR[process_str]}</div>)
+            }
             <Form.Group controlId="formFile" className="mb-3" style={{display:"flex",flexDirection: "column"}}>
                 <div>
                     <Form.Label>.zip 으로 압축한 레포지토리를 업로드 해주세요</Form.Label>

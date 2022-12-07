@@ -101,6 +101,8 @@ export const get_status = (req:Request, res:Response) => {
                             msg: "db query error"
                         })
                     }
+                    console.log(result1[0].status);
+                    console.log(result1[0].status===7);
                     if(result1[0].status === 7){
                         db_con.query('update analysis_status set status=0 where token=\''+headers['token']+'\'',
                             (err, result)=>{
