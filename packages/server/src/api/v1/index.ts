@@ -2,6 +2,7 @@ import express, {Request, Response} from "express";
 import upload from "./controller/upload";
 import codeql_create from "./controller/codeql_create";
 import codeql_analyze from "./controller/codeql_analysis";
+import view_csv from "./controller/view_csv";
 import { get_status } from "./controller/status";
 import bodyParser from "body-parser";
 
@@ -20,5 +21,6 @@ router.post('/upload',upload);
 router.post('/codeql-create',codeql_create);
 router.post('/codeql-analyze',codeql_analyze);
 router.get('/status',get_status);
+router.get('/view-csv',view_csv);
 
 export default router;
