@@ -32,7 +32,7 @@ const Uploader = ()=>{
     }
     
     /* db creating 진행 정도 체크 */
-    const get_create_status = (pid, dirname) => {
+    const get_create_status = (pid, dir_name) => {
         axios.get(API_URL+"/status?mod=create_db&pid="+pid,
             {
                 headers:{
@@ -43,11 +43,11 @@ const Uploader = ()=>{
         )
         .then((res)=>{
             if(res.data.status === "creating"){
-                setTimeout(get_create_status,1000,pid,dirname);
+                setTimeout(get_create_status,1000, pid, dir_name);
             }
             else{
                 setProcessStr(3);
-                analyzeDB(0,dirname);
+                analyzeDB(0, dir_name);
             }
         })
         .catch((e)=>{
@@ -55,7 +55,7 @@ const Uploader = ()=>{
         })
     }
     /* db analyzing 진행 정도 체크 */
-    const get_analyze_status = (per) => {
+    const get_analyze_status = (per, dir_name) => {
         axios.get(API_URL+"/status?mod=analysis_db",
             {
                 headers:{
@@ -66,14 +66,14 @@ const Uploader = ()=>{
         ).then(async (res)=>{
             /* 분석 중 */
             if(res.data.status==="analyzing"){
-                setTimeout(get_analyze_status,1000, per, dirname);
+                setTimeout(get_analyze_status,1000, per, dir_name);
             }
             else{
                 /* 다음 쿼리 */
                 if(res.data.status === "next"){
                     setPercentage(per+14);
                     ql_num += 1;
-                    analyzeDB(per+14, dirname);
+                    analyzeDB(per+14, dir_name);
                 }
                 /* 총 분석 완료 */
                 else{
@@ -93,10 +93,10 @@ const Uploader = ()=>{
         })
     }
     /* db analyzing */
-    const analyzeDB = (per, dirname) => {
+    const analyzeDB = (per, dir_name) => {
         axios.post(API_URL+"/codeql-analyze",
             {
-                "dirname": dirname,
+                "dirname": dir_name,
                 "ql_num": ql_num
             },
             {
@@ -107,7 +107,7 @@ const Uploader = ()=>{
                 }
             }
         ).then((analyze_res)=>{
-            setTimeout(get_analyze_status,1000, per, dirname);
+            setTimeout(get_analyze_status,1000, per, dir_name);
         })
     }
     /* repo upload 및 db creating */
