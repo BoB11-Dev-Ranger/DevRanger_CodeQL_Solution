@@ -80,7 +80,7 @@ const Uploader = ()=>{
                     setPercentage(per+14);
                     await sleep(2000);
                     setPercentage(100);
-                    console.log("CodeQL DB 분석완료");
+                    alert("CodeQL DB 분석완료");
                     await sleep(2000);
                     /* 초기화 */
                     ql_num = 0;
@@ -171,8 +171,8 @@ const Uploader = ()=>{
                         코드 점검 스타트
                     </Button>
                 </div>
-                <ViewCSV complete={is_analyzed} dirname={dirname}></ViewCSV>
             </Form.Group>
+            <ViewCSV complete={is_analyzed} dirname={dirname}></ViewCSV>
         </>
     )
 }
