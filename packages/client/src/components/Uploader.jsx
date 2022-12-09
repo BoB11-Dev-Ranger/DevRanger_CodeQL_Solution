@@ -24,7 +24,6 @@ const Uploader = ()=>{
     const [percentage, setPercentage] = useState(0);
     const [is_analyzed, setAnalyzed] = useState(false);
     let ql_num = 0;
-    //let dirname = "";
     const [dirname, setDirname] = useState("");
     const handleZipFile = (e) => {
         console.log(e.target.files[0]);
@@ -115,6 +114,8 @@ const Uploader = ()=>{
         if(repo === 0)
             alert('파일을 업로드 해주세요');
         else{
+            setAnalyzed(false);
+            setDirname("");
             const fomrData = new FormData();            
             fomrData.append(
                 "repo",
@@ -161,15 +162,17 @@ const Uploader = ()=>{
             }
             <Form.Group controlId="formFile" className="mb-3" style={{display:"flex",flexDirection: "column"}}>
                 <div>
-                    <Form.Label>.zip 으로 압축한 레포지토리를 업로드 해주세요</Form.Label>
+                    <Form.Label style={{fontFamily:'Nanum Gothic Coding', fontSize:'20px'}}>.zip 으로 압축한 레포지토리를 업로드 해주세요</Form.Label>
                 </div>
-                <div>
-                    <Form.Control type="file" onChange={handleZipFile} />
-                </div>
-                <div>
-                    <Button variant="primary" type="submit" onClick={uploadRepo}>
-                        코드 점검 스타트
-                    </Button>
+                <div style={{display:"flex", flexDirection:"row"}}>
+                    <div style={{marginLeft: "2.5%"}}>
+                        <Form.Control type="file" onChange={handleZipFile} />
+                    </div>
+                    <div style={{marginLeft: "2%"}}>
+                        <Button variant="danger" type="submit" onClick={uploadRepo}>
+                            코드 점검
+                        </Button>
+                    </div>
                 </div>
             </Form.Group>
             <ViewCSV complete={is_analyzed} dirname={dirname}></ViewCSV>

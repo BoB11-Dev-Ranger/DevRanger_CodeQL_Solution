@@ -1,4 +1,5 @@
-import './App.css';
+import './statics/App.css';
+import logo from "./statics/bob-logo.png";
 import 'bootstrap/dist/css/bootstrap.css';
 import Uploader from "./components/Uploader";
 // import { Test } from '@services/shared';
@@ -7,16 +8,17 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div style={{
+          marginTop: "5%",
           fontFamily:'Nanum Gothic Coding',
           fontSize: '48px'
         }}>
-          Dev Ranger's
+          <div><img src={logo} alt="bob" style={{width:"8%", marginRight: "2%"}}/>Dev Ranger's CodeQL Service</div>
         </div>
         <div style={{
           fontFamily:'Nanum Gothic Coding',
           fontSize: '48px'
         }}>
-          CodeQL Service
+          
         </div>
         <Uploader></Uploader>
       </header>
