@@ -54,7 +54,6 @@ const upload = (req: Request, res: Response) => {
 			.then((res: any)=>{
 				delzip(res.opts?.path+".zip");
 			})
-			console.log("success");
 			res.send({
 				status: "success",
 				msg: {

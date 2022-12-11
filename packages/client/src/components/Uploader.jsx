@@ -1,3 +1,4 @@
+import Alert from './Alert';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import {useState} from "react";
@@ -18,24 +19,31 @@ const sleep = (ms) => {
      })
  }
 const Uploader = ()=>{
+    /* Modal state */
+    const [alert_title, setTitle] = useState("");
+    const [alert_content, setContent] = useState("");
+    const [open, setOpen] = useState(false);
+
     const [repo, setRepo] = useState(0);
+    const [disable_button, setButtonDisable] = useState(false);
     const [loading, setLoading] = useState(false);
     const [process_str, setProcessStr] = useState(0);
     const [percentage, setPercentage] = useState(0);
     const [is_analyzed, setAnalyzed] = useState(false);
     let ql_num = 0;
     const [dirname, setDirname] = useState("");
+
     const handleZipFile = (e) => {
         console.log(e.target.files[0]);
         setRepo(e.target.files[0]);
     }
-    
+    const handleClose = () => setOpen(false);
     /* db creating 진행 정도 체크 */
     const get_create_status = (pid, dir_name) => {
         axios.get(API_URL+"/status?mod=create_db&pid="+pid,
             {
                 headers:{
-                    "token": "test",
+                    "token": localStorage.getItem('my_token'),
                     'Accept': '*/*'
                 }
             }
@@ -50,7 +58,9 @@ const Uploader = ()=>{
             }
         })
         .catch((e)=>{
-            alert(e);
+            setTitle("Error");
+            setContent(e);
+            setOpen(true);
         })
     }
     /* db analyzing 진행 정도 체크 */
@@ -58,14 +68,14 @@ const Uploader = ()=>{
         axios.get(API_URL+"/status?mod=analysis_db",
             {
                 headers:{
-                    "token": "test",
+                    "token": localStorage.getItem('my_token'),
                     'Accept': '*/*'
                 }
             }
         ).then(async (res)=>{
             /* 분석 중 */
             if(res.data.status==="analyzing"){
-                setTimeout(get_analyze_status,1000, per, dir_name);
+                setTimeout(get_analyze_status,3000, per, dir_name);
             }
             else{
                 /* 다음 쿼리 */
@@ -79,7 +89,9 @@ const Uploader = ()=>{
                     setPercentage(per+14);
                     await sleep(2000);
                     setPercentage(100);
-                    alert("CodeQL DB 분석완료");
+                    setTitle("Success");
+                    setContent("CodeQL DB 분석완료");
+                    setOpen(true);
                     await sleep(2000);
                     /* 초기화 */
                     ql_num = 0;
@@ -87,6 +99,7 @@ const Uploader = ()=>{
                     setPercentage(0);
                     setProcessStr(0);
                     setLoading( false);
+                    setButtonDisable(false);
                 }
             }
         })
@@ -100,20 +113,27 @@ const Uploader = ()=>{
             },
             {
                 headers:{
-                    "token": "test",
+                    "token": localStorage.getItem('my_token'),
                     'Content-type': 'application/json',
                     'Accept': '*/*'
                 }
             }
         ).then((analyze_res)=>{
-            setTimeout(get_analyze_status,1000, per, dir_name);
+            setTimeout(get_analyze_status,3000, per, dir_name);
         })
     }
     /* repo upload 및 db creating */
     const uploadRepo = () => {
-        if(repo === 0)
-            alert('파일을 업로드 해주세요');
+        if(repo === 0){
+            setTitle("Error");
+            setContent("파일을 업로드 해주세요");
+            setOpen(true);
+        }
         else{
+            setTitle("Success");
+            setContent("코드분석이 시작되었습니다");
+            setOpen(true);
+            setButtonDisable(true);
             setAnalyzed(false);
             setDirname("");
             const fomrData = new FormData();            
@@ -135,7 +155,7 @@ const Uploader = ()=>{
                     },
                     {
                         headers:{
-                            "token": "test",
+                            "token": localStorage.getItem('my_token'),
                             'Content-type': 'application/json',
                             'Accept': '*/*'
                         }
@@ -143,17 +163,22 @@ const Uploader = ()=>{
                 ).then((create_res)=>{                
                     setTimeout(get_create_status,1000,create_res.data.pid, upload_res.data.msg.dirname);
                 }).catch((create_err)=>{
-                    alert(create_err);
+                    setTitle("Error");
+                    setContent(create_err);
+                    setOpen(true);
                 })
             })
             .catch((upload_err)=>{
                 setLoading(false);
-                alert(upload_err);
+                setTitle("Error");
+                setContent(upload_err);
+                setOpen(true);
             })
         }
     }
     return (
         <>
+            <Alert title={alert_title} content={alert_content} is_open={open} handleClose={handleClose}></Alert>
             {loading?(<Spinner></Spinner>):(<></>)}
             {process_str===3
             ?   (<div className='loading'>{`${PROCESS_STR[process_str]}(${percentage}%)...`}</div>)
@@ -169,9 +194,15 @@ const Uploader = ()=>{
                         <Form.Control type="file" onChange={handleZipFile} />
                     </div>
                     <div style={{marginLeft: "2%"}}>
-                        <Button variant="danger" type="submit" onClick={uploadRepo}>
-                            코드 점검
-                        </Button>
+                        {disable_button?(
+                            <Button variant="danger" type="submit" onClick={uploadRepo} disabled>
+                                코드 점검
+                            </Button>):(
+                            <Button variant="danger" type="submit" onClick={uploadRepo}>
+                                코드 점검
+                            </Button>
+                            )
+                        }
                     </div>
                 </div>
             </Form.Group>

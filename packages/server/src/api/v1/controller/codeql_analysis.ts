@@ -36,7 +36,6 @@ async function analyzeDB(dirname: string, ql_num: number) {
 }
 const codeql_analyze = async (req: Request, res: Response) => {
     let headers = req.headers;
-    console.log(headers['token']);
     if(typeof headers['token'] == 'undefined'){
       res.status(401).send({
         status:"fail",
