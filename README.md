@@ -1,4 +1,4 @@
-# Devranger's Auto Code Auditing Service
+# Devranger's Auto Code Auditing Solution
 
 ---
 
