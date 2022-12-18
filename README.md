@@ -24,6 +24,22 @@ If you wanna add some node moudle, you can add modules to each package with this
 
 - Add Modules for Server : `yarn server add <module name>`
 
+Before execute server, You should set enviornment value for db.
+
+1. **DB_HOST** : Database host name of mysql.
+
+2. **DB_USERNAME** : Database user name of mysql.
+
+3. **DB_PASSWORD** : Database password of mysql.
+
+4. **DB_NAME** : Database name of mysql.
+
+### IMPORTANT!!!
+
+Then, For codeql service, you should download codeql-cli and set that path in `$PATH`.
+
+And your analysis CodeQL query should be in `~/codeql-repo_DIR/javascript/ql/src/myql` which is used by server's codeql querying api.
+
 ---
 
 ## Solution Usage
